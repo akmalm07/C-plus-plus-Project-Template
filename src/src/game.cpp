@@ -2,30 +2,21 @@
 #include "game.h"
 
 
-Game::Game(int screenWidth, int screenHeight, const char* title)
-	: canPawnMove(boardSetup)
+Game::Game(int screenWidth, int screenHeight, const char* title, Player player)
+	: chessEngine(player)
 {
 	this->screenWidth = screenWidth;
 	this->screenHeight = screenHeight;
 	this->title = title;
 	this->isGameOver = false;
 
-	boardSetup = {
-		B_ROOK, B_KNIGHT, B_BISHOP, B_QUEEN, B_KING, B_BISHOP, B_KNIGHT, B_ROOK,
-		B_PAWN, B_PAWN, B_PAWN, B_PAWN, B_PAWN, B_PAWN, B_PAWN, B_PAWN,
-		EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY,
-		EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY,
-		EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY,
-		EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY,
-		W_PAWN, W_PAWN, W_PAWN, W_PAWN, W_PAWN, W_PAWN, W_PAWN, W_PAWN,
-		W_ROOK, W_KNIGHT, W_BISHOP, W_QUEEN, W_KING, W_BISHOP, W_KNIGHT, W_ROOK
-	};
 
 	SetConfigFlags(FLAG_WINDOW_RESIZABLE);
 
 	InitWindow(screenWidth, screenHeight, title);
 	SetTargetFPS(300);
 }
+
 
 void Game::run()
 {
@@ -74,12 +65,12 @@ void Game::render_board()
 
 	for (int i = 0; i < piecesRects.size(); i++)
 	{
-		for (int j = 0; j < boardSetup.size(); j++)
+		for (int j = 0; j < chessEngine.get_board_size(); j++)
 		{
-			if (boardSetup[j] == EMPTY)
+			if (chessEngine.piece_at(j) == EMPTY)
 				continue;
 
-			if (piecesRects[i].piece == boardSetup[j])
+			if (piecesRects[i].piece == chessEngine.piece_at(j))
 			{
 				int x = (j % 8) * squareSize;
 				int y = (j / 8) * squareSize;
@@ -92,10 +83,21 @@ void Game::render_board()
 	// Decide move
 	if (click.state == SECOND_CLICK)
 	{
-		if (can_move_here(click.firstPos, click.secondPos))
+
+		std::cout << "Moving piece from " << click.firstPos << " to " << click.secondPos << "\n";
+
+		if (chessEngine.move_piece(click.firstPos, click.secondPos) != MOVE_INVALID)
 		{
-			boardSetup[click.secondPos] = boardSetup[click.firstPos];
-			boardSetup[click.firstPos] = EMPTY;
+			int i = 0;
+
+			click.reset();
+
+			//boardSetup[click.secondPos] = boardSetup[click.firstPos];
+			//boardSetup[click.firstPos] = EMPTY;
+		}
+		else
+		{
+			click.state = FIRST_CLICK;
 		}
 	}
 
@@ -110,9 +112,9 @@ void Game::load_assets()
 	texInfo.width = texInfo.tex.width / 6;
 	texInfo.height = texInfo.tex.height / 2;
 
-	piecesRects.reserve(piecesLeft);
+	piecesRects.reserve(chessEngine.piece_count());
 
-	for (int i = 0; i < piecesLeft; i++)
+	for (int i = 0; i < chessEngine.piece_count(); i++)
 	{
 		Rectangle rec{ (i % 6) * texInfo.width, (i / 6) * texInfo.height, texInfo.width, texInfo.height };
 
@@ -157,7 +159,7 @@ void Game::handle_clicks()
 		switch (click.state) 
 		{
 		case NO_CLICK:
-			if (valid_piece(index)) 
+			if (chessEngine.valid_piece(index)) 
 			{
 				click.firstPos = index;
 				click.state = FIRST_CLICK;
@@ -168,10 +170,10 @@ void Game::handle_clicks()
 			click.secondPos = index;
 			if (click.firstPos != click.secondPos) 
 			{
-				boardSetup[click.secondPos] = boardSetup[click.firstPos];
-				boardSetup[click.firstPos] = EMPTY;
+				click.state = SECOND_CLICK;
+				//boardSetup[click.secondPos] = boardSetup[click.firstPos];
+				//boardSetup[click.firstPos] = EMPTY;
 			}
-			click.reset();
 			break;
 
 		default:
@@ -206,57 +208,14 @@ int Game::get_index_from_mouse_pos() const
 	int col = mouse.x / (screenWidth / 8);
 	int row = mouse.y / (screenHeight / 8);
 
-	std::cout << "Mouse Position: (" << mouse.x << ", " << mouse.y << ") -> Index: (" << row << ", " << col << ")\n";
+	//std::cout << "Mouse Position: (" << mouse.x << ", " << mouse.y << ") -> Index: (" << row << ", " << col << ")\n";
 
 	return row * 8 + col;
-}
-
-bool Game::can_move_here(int posOfPiece, int movePos)
-{
-	//switch (boardSetup[posOfPiece])
-	//{
-	//case W_PAWN:
-	//case B_PAWN:
-	//	return can_pawn_move(posOfPiece, movePos);
-	//case W_ROOK:
-	//case B_ROOK:
-	//	return can_rook_move(posOfPiece, movePos);
-	//case W_KNIGHT:
-	//case B_KNIGHT:
-	//	return can_knight_move(posOfPiece, movePos);
-	//case W_BISHOP:
-	//case B_BISHOP:
-	//	return can_bishop_move(posOfPiece, movePos);
-
-	//case W_QUEEN:
-	//case B_QUEEN:
-	//	return can_queen_move(posOfPiece, movePos);
-	//case W_KING:
-	//case B_KING:
-	//	return can_king_move(posOfPiece, movePos);
-	//default:
-	//	return false;
-	//}
-	return true;
-
 }
 
 int Game::get_y_pos(int index) const
 {
 	return (index / 8) * (screenHeight / 8);
-}
-
-bool Game::piece_exists(int index) const
-{
-	return boardSetup[index] != EMPTY;
-}
-
-bool Game::valid_piece(int index) const 
-{
-	return piece_exists(index) &&
-		(player == PL_WHITE
-			? (W_KING <= boardSetup[index] && boardSetup[index] <= W_PAWN)
-			: (B_KING <= boardSetup[index] && boardSetup[index] <= B_PAWN));
 }
 
 

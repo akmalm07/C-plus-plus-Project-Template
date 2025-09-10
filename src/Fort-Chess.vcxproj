@@ -104,14 +104,14 @@
     <ClInclude Include="global\headers.h" />
     <ClInclude Include="include\game.h" />
     <ClInclude Include="include\main.h" />
-    <ClInclude Include="include\pieces.h" />
+    <ClInclude Include="include\engine.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="global\headers.cpp">
       <PrecompiledHeader>Create</PrecompiledHeader>
       <AdditionalOptions>/Ycheaders.h %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
-    <ClCompile Include="src\pieces.cpp" />
+    <ClCompile Include="src\engine.cpp" />
     <ClCompile Include="src\game.cpp" />
     <ClCompile Include="src\main.cpp" />
   </ItemGroup>

@@ -3,15 +3,9 @@
 
 #include <raylib.h>
 #include <array>
-#include "pieces.h"
+#include "engine.h"
 
 constexpr const char* SPRITE_MAP_PATH = "../textures/chess-pieces-spritesheet.png";
-
-enum Player
-{
-	PL_WHITE = 0,
-	PL_BLACK
-};
 
 enum ClickState
 {
@@ -23,7 +17,7 @@ enum ClickState
 class Game
 {
 public:
-	Game(int screenWidth, int screenHeight, const char* title);
+	Game(int screenWidth, int screenHeight, const char* title, Player player);
 
 	void run();
 
@@ -44,22 +38,14 @@ private:
 	bool isGameOver;
 
 
-	std::array<Pieces, 64> boardSetup;
-
-	struct EnPassentOppertunity
-	{
-		std::pair<int, int> possiblePositions;
-		bool whenImplemented = false;
-	};
-
-	std::vector<EnPassentOppertunity> _enPassantOppertunities;
-
 	struct PiecesTexturePos
 	{
 		Rectangle rect;
 		Pieces piece;
 	};
 
+	std::vector<PiecesTexturePos> piecesRects;
+	
 	struct
 	{
 		int width;
@@ -67,10 +53,8 @@ private:
 		Texture2D tex;
 	} texInfo;
 	
+	ChessEngine chessEngine;
 
-	std::vector<PiecesTexturePos> piecesRects;
-
-	unsigned int piecesLeft = 12;
 
 	struct 
 	{ 
@@ -94,16 +78,9 @@ private:
 	int get_x_pos(int index) const;
 	int get_y_pos(int index) const;
 
-	bool valid_piece(int index) const;
-
-	bool piece_exists(int index) const;
-
 	int get_index(int x, int y) const;
-
 	int get_index_from_mouse_pos() const;
 
-
-	bool can_move_here(int posOfPiece, int movePos);
 
 	// Handles
 	void handle_resize();
