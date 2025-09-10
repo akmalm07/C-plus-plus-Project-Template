@@ -1,5 +1,5 @@
-project "ProjName"
-    location "ProjName"
+project "Fort-Chess"
+    location "."
     kind "ConsoleApp"
     language "C++"
     cppdialect "C++latest"
@@ -11,11 +11,9 @@ project "ProjName"
     -- Include directories
     includedirs 
     {
-        "%{IncludeDir.item}",
+        "%{IncludeDir.raylib}",
         "global",            
         "include",           
-        "shaders",
-        "internal-api(optional)/internal",
         "json",
         "src"
     }
@@ -27,11 +25,6 @@ project "ProjName"
         "include/**.h",     
         "include/**.inl",     
 
-        "internal-api(optional)/internal/include/**.h", 
-        "internal-api(optional)/internal/include/**.inl", 
-        
-        "internal-api(optional)/internal/src/**.cpp", 
-
         "global/**.h",
         "global/**.cpp",
 
@@ -42,20 +35,20 @@ project "ProjName"
     -- Library directories
     libdirs 
     { 
-        "%{LibDir.item}",
+        "%{LibDir.raylib}",
     }
 
     -- Links
     links 
     { 
-        "item",
+        "raylib",
+        "winmm",
     }
 
     pchheader "headers.h"
-    pchsource "headers.cpp"
+    pchsource "global/headers.cpp"
 
-    define { "ITEM" }
-
+    
     flags { "Verbose" }
 
 

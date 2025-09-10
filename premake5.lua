@@ -1,20 +1,20 @@
-workspace "Solution / Workspace Name"
+workspace "Fort-Chess"
     architecture "x64"
-    startproject "ProjName"
-
+    startproject "fort-chess"
+    location "."
     configurations { "Debug", "Release" }
 
 outputdir = "%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}"
 
 -- Include directories relative to root folder
 IncludeDir = {}
-IncludeDir["item"] = "vendor/item/include"
+IncludeDir["raylib"] = "../vendors/raylib/include"
 
 
 LibDir = {}
-LibDir["item"] = "vendor/item/lib"
+LibDir["raylib"] = "../vendors/raylib/lib"
 
 
 
-group "ProjName"
-    include "ProjName/ProjName.lua"
+group "fort-chess"
+    include "src/fort-chess.lua"
